@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill 创建教程 - 从零到一打造你的 AI 技能插件</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-secondary: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-muted: #8b949e;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+    --green: #3fb950;
+    --orange: #d2991d;
+    --red: #f85149;
+    --sidebar-width: 260px;
+    --header-height: 60px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--blue);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .sidebar-logo span { color: var(--purple); }
+
+  .nav-list { list-style: none; }
+
+  .nav-list a {
+    display: block;
+    padding: 8px 20px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .nav-list a:hover,
+  .nav-list a.active {
+    color: var(--blue);
+    border-left-color: var(--blue);
+    background: rgba(88, 166, 255, 0.06);
+  }
+
+  .nav-list a.sub {
+    padding-left: 36px;
+    font-size: 13px;
+  }
+
+  /* ===== Main ===== */
+  .main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 960px;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+    border-bottom: 2px solid var(--blue);
+    padding-bottom: 12px;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 48px 0 16px;
+    color: var(--blue);
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 32px 0 12px;
+    color: var(--purple);
+  }
+
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 24px 0 8px;
+    color: var(--text);
+  }
+
+  p { margin-bottom: 14px; font-size: 15px; }
+
+  strong { color: var(--blue); }
+  em { color: var(--orange); font-style: normal; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .tag-blue { background: rgba(88,166,255,0.15); color: var(--blue); }
+  .tag-purple { background: rgba(188,140,255,0.15); color: var(--purple); }
+  .tag-green { background: rgba(63,185,80,0.15); color: var(--green); }
+  .tag-red { background: rgba(248,81,73,0.15); color: var(--red); }
+  .tag-orange { background: rgba(210,153,29,0.15); color: var(--orange); }
+
+  /* Callout */
+  .callout {
+    border-left: 4px solid var(--blue);
+    background: rgba(88, 166, 255, 0.06);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .callout.warn {
+    border-left-color: var(--orange);
+    background: rgba(210, 153, 29, 0.06);
+  }
+  .callout.tip {
+    border-left-color: var(--green);
+    background: rgba(63, 185, 80, 0.06);
+  }
+  .callout.danger {
+    border-left-color: var(--red);
+    background: rgba(248, 81, 73, 0.06);
+  }
+  .callout-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--blue);
+  }
+  .callout.warn .callout-title { color: var(--orange); }
+  .callout.tip .callout-title { color: var(--green); }
+  .callout.danger .callout-title { color: var(--red); }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th {
+    background: var(--bg-secondary);
+    color: var(--blue);
+    text-align: left;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    font-weight: 600;
+  }
+  td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+  }
+  tr:hover td { background: rgba(88,166,255,0.04); }
+
+  /* Tags */
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+  .tag-green { background: rgba(63,185,80,0.15); color: var(--green); }
+  .tag-red { background: rgba(248,81,73,0.15); color: var(--red); }
+
+  /* Code */
+  code {
+    background: var(--bg-secondary);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: "Cascadia Code", "Fira Code", "SF Mono", "Consolas", monospace;
+    font-size: 13.5px;
+    color: var(--orange);
+  }
+
+  pre {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 16px 0;
+    position: relative;
+    font-size: 14px;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: rgba(88,166,255,0.12);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { color: var(--blue); border-color: var(--blue); }
+
+  /* Syntax highlight — JSON keys */
+  .json-key { color: var(--blue); }
+  .json-string { color: var(--green); }
+  .json-number { color: var(--orange); }
+
+  ul, ol { margin: 12px 0 12px 22px; }
+  li { margin-bottom: 8px; font-size: 15px; }
+
+  /* Image zoom */
+  .img-wrapper {
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    cursor: zoom-in;
+    transition: all 0.2s;
+  }
+  .img-wrapper:hover { border-color: var(--blue); }
+  .img-wrapper img {
+    display: block;
+    width: 100%;
+  }
+
+  /* Lightbox */
+  .lightbox {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 0 40px rgba(88,166,255,0.2);
+  }
+
+  /* Steps */
+  .step-list { counter-reset: step; list-style: none; margin-left: 0; }
+  .step-list li {
+    counter-increment: step;
+    padding: 16px 16px 16px 56px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    position: relative;
+    background: var(--bg-secondary);
+  }
+  .step-list li::before {
+    content: counter(step);
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: var(--bg);
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    background: var(--purple);
+    color: var(--bg);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  hr.case-divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-logo">🎯 Skill <span>教程</span></div>
+  <ul class="nav-list">
+    <li><a href="#intro" class="active">什么是 Skill</a></li>
+    <li><a href="#why" class="sub">Skill 的价值</a></li>
+    <li><a href="#analogy" class="sub">一个生动的类比</a></li>
+    <li><a href="#five-elements" class="sub">五元素结构</a></li>
+    <li><a href="#boundary">Skill 的能力边界</a></li>
+    <li><a href="#boundary-good" class="sub">适合的场景</a></li>
+    <li><a href="#boundary-bad" class="sub">不适合的场景</a></li>
+    <li><a href="#boundary-tool" class="sub">Skill 与 Tool 的关系</a></li>
+    <li><a href="#standard">优秀 Skill 的标准</a></li>
+    <li><a href="#components">核心组成</a></li>
+    <li><a href="#name" class="sub">name（名称）</a></li>
+    <li><a href="#description" class="sub">description（描述）</a></li>
+    <li><a href="#prompt" class="sub">prompt（指令正文）</a></li>
+    <li><a href="#registration">注册方式</a></li>
+    <li><a href="#demo">完整示范</a></li>
+    <li><a href="#best-practice">最佳实践</a></li>
+    <li><a href="#naming" class="sub">命名规范</a></li>
+    <li><a href="#desc-tips" class="sub">描述编写技巧</a></li>
+    <li><a href="#prompt-tips" class="sub">Prompt 编写技巧</a></li>
+    <li><a href="#pitfalls" class="sub">常见踩坑点</a></li>
+    <li><a href="#cases">实战案例拆解</a></li>
+    <li><a href="#case-meeting" class="sub">智能会议纪要生成器</a></li>
+    <li><a href="#case-novel" class="sub">五阶段流水线写小说</a></li>
+    <li><a href="#case-image" class="sub">文章智能配图</a></li>
+    <li><a href="#case-interview" class="sub">前端笔面试通关神器</a></li>
+    <li><a href="#env">开发环境与工具链</a></li>
+    <li><a href="#publish">调试与发布上线</a></li>
+    <li><a href="#platform-compat">主流平台 Skill 格式速查</a></li>
+    <li><a href="#wb-vs-loomy">WorkBuddy vs Loomy：Skill 创建实战对比</a></li>
+    <li><a href="#advanced">进阶技巧</a></li>
+    <li><a href="#tools" class="sub">引用工具</a></li>
+    <li><a href="#triggers" class="sub">触发条件</a></li>
+    <li><a href="#multi-skill" class="sub">多 Skill 协作</a></li>
+    <li><a href="#summary">总结</a></li>
+  </ul>
+</nav>
+
+<!-- ===== Main ===== -->
+<main class="main">
+
+<h1 id="intro">Skill 创建教程 <span style="font-size:18px;font-weight:400;color:var(--text-muted)">从零到一打造你的 AI 技能插件</span></h1>
+<p style="color:var(--text-muted);font-size:14px;">最后更新：2026-07-24 &nbsp;|&nbsp; 面向读者：完全零基础的新手小白 &nbsp;|&nbsp; 参考来源：AI 大学堂《Skill 开发实战训练营》（讲师：胡劲松）</p>
+
+<hr>
+
+<!-- ===== 1. 什么是 Skill ===== -->
+<h2 id="intro">什么是 Skill？</h2>
+
+<p>简单来说，<strong>Skill（技能）</strong> 是给 AI 助手安装的 <em>「专业培训手册」</em> — 它告诉 AI：当用户提出某种需求时，你该怎么思考、用哪些工具、遵循什么流程、注意哪些红线。</p>
+
+<p>一个 Skill 本质上是一段 <strong>预设的系统级指令文本</strong>，当用户的对话匹配到某个 Skill 时，这段指令就会被注入到 AI 的上下文中，让 AI「切换」到该领域的专家模式。</p>
+
+<div class="callout tip">
+  <div class="callout-title">更严谨的定义</div>
+  Skill 是 AI Agent 生态中的<strong>可插拔扩展单元</strong>：每个 Skill 封装特定领域的专业指令与最佳实践，Agent 通过 <code>use_skill</code> 工具动态加载，从而从「通用助手」升级为「领域专家」。用户无需手动编写复杂指令，Agent 会自动匹配最优 Skill。
+</div>
+
+<h3 id="why">Skill 的核心价值</h3>
+
+<table>
+  <tr><th style="width:120px;">价值维度</th><th>说明</th></tr>
+  <tr><td><span class="tag tag-blue">专业化</span></td><td>让通用 AI 变成领域专家。例如 <code>invoice-retrieval</code> Skill 让 AI 精准识别发票、提取结构化信息</td></tr>
+  <tr><td><span class="tag tag-purple">流程标准化</span></td><td>固化复杂任务的最佳实践。例如 <code>file-organizer</code> Skill 定义了「扫描→蓝图→确认→执行→撤销」五阶段安全流程</td></tr>
+  <tr><td><span class="tag tag-green">安全可控</span></td><td>在 Skill 中写入安全红线、禁区规则，AI 必须遵守，避免越权操作</td></tr>
+  <tr><td><span class="tag tag-orange">可复用</span></td><td>一次编写，全平台共享。所有用户对话都能受益于同一份 Skill 指令</td></tr>
+</table>
+
+<h3 id="analogy">一个生动的类比</h3>
+
+<div class="callout">
+  <div class="callout-title">类比：餐厅的「岗前培训手册」</div>
+  想象你是一家餐厅的老板，招了一位通用厨师。这位厨师会做菜，但不了解你的餐厅风格。<br><br>
+  <strong>Skill</strong> 就是你给他的一本 <strong>岗前培训手册</strong>：<br>
+  • <strong>name</strong> = 这本手册的标签（比如「日料专区」）<br>
+  • <strong>description</strong> = 封面的简介（「日料制作全流程指导」）<br>
+  • <strong>prompt</strong> = 手册正文（选材标准、刀工要求、调味比例、出餐顺序…）<br><br>
+  当客人点了寿司，领班一看标签就把这本手册塞给厨师 — 厨师立刻按手册标准作业，出品稳定一致。
+</div>
+
+<h3 id="five-elements">Skill 的「五元素」结构</h3>
+
+<p>在讯飞 Skill 平台的 <code>SKILL.md</code> 配置规范中，一个完整的 Skill 由 <strong>五个元素</strong> 构成。其中前两个是<strong>基础元数据</strong>，后三个是<strong>功能定义</strong>：</p>
+
+<table>
+  <tr><th style="width:90px;">分类</th><th style="width:130px;">元素</th><th>说明</th></tr>
+  <tr>
+    <td rowspan="2"><strong>基础元数据</strong></td>
+    <td><code>NAME</code></td>
+    <td>Skill 唯一标识符，建议 kebab-case 命名（如 <code>hello-skill</code>）</td>
+  </tr>
+  <tr>
+    <td><code>DESCRIPTION</code></td>
+    <td>功能描述（最长 <strong>1024 字符</strong>），是 Agent 判断是否加载该 Skill 的<strong>唯一依据</strong></td>
+  </tr>
+  <tr>
+    <td rowspan="3"><strong>功能定义</strong></td>
+    <td><code>TRIGGER</code></td>
+    <td>触发词 — 用户说什么话会激活本 Skill</td>
+  </tr>
+  <tr>
+    <td><code>ABILITIES</code></td>
+    <td>具体任务能力 — 本 Skill 能完成哪些事</td>
+  </tr>
+  <tr>
+    <td><code>OUTPUT</code></td>
+    <td>返回结果格式 — 输出长什么样、给下游如何消费</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <div class="callout-title">最小 SKILL.md 结构示例</div>
+  <pre><code><span class="json-key">name:</span> <span class="json-string">hello-skill</span>
+<span class="json-key">description:</span> <span class="json-string">使用星火 Lite 模型生成一句 30 字以内的中文问候语</span>
+
+<span class="json-key"># 能力</span>
+<span class="json-key">abilities:</span>
+  - <span class="json-string">根据用户场景生成个性化中文问候语</span>
+  - <span class="json-string">支持多种问候风格（正式/轻松/温馨）</span></code></pre>
+</div>
+
+<div class="callout warn">
+  <div class="callout-title">两种视角的对照</div>
+  本教程前文把 Skill 拆成 <code>name</code> / <code>description</code> / <code>prompt</code> 三个核心字段，是从「指令注入」角度的简化模型；而五元素模型是从「平台配置」角度的完整规范。两者并不矛盾：<code>prompt</code> 内部就承载了 <code>TRIGGER</code> / <code>ABILITIES</code> / <code>OUTPUT</code> 的详细定义。
+</div>
+
+<hr>
+
+<!-- ===== 2. Skill 的能力边界 ===== -->
+<h2 id="boundary">Skill 的能力边界</h2>
+
+<p>在动手之前，先想清楚：<strong>这个需求到底适不适合用 Skill 来做？</strong> 学会「做减法」比堆砌功能更重要。下面用 5 类典型场景 + 5 类应避免场景帮你快速判断。</p>
+
+<h3 id="boundary-good">✅ 适合用 Skill 的 5 类场景</h3>
+
+<table>
+  <tr><th style="width:140px;">类别</th><th>典型例子</th></tr>
+  <tr><td><span class="tag tag-blue">内容生成</span></td><td>PPT 生成、文章配图、小说写作</td></tr>
+  <tr><td><span class="tag tag-purple">信息抽取</span></td><td>会议纪要、简历解析、合同条款提取</td></tr>
+  <tr><td><span class="tag tag-green">数据处理</span></td><td>表格整理、JSON 转换、批量改名</td></tr>
+  <tr><td><span class="tag tag-orange">知识服务</span></td><td>八股文刷题、面试陪练、英语口语</td></tr>
+  <tr><td><span class="tag tag-red">工作流编排</span></td><td>日报生成、自动周报、跨工具调度</td></tr>
+</table>
+
+<div class="callout tip">
+  <div class="callout-title">判断口诀</div>
+  <strong>「有明确流程的领域任务」</strong>最适合 Skill：输入可预期、步骤可固化、输出可校验。
+</div>
+
+<h3 id="boundary-bad">❌ 不适合用 Skill 的 5 类场景</h3>
+
+<table>
+  <tr><th style="width:140px;">类别</th><th>原因 / 替代方案</th></tr>
+  <tr><td><span class="tag tag-red">强实时性（毫秒级）</span></td><td>Skill 走 LLM 推理链路有延迟 → 直接 <strong>API + 前端</strong></td></tr>
+  <tr><td><span class="tag tag-red">大规模并发</span></td><td>单 Skill 实例难以扛量 → <strong>异步队列 + 缓存</strong></td></tr>
+  <tr><td><span class="tag tag-red">严格权限 / 合规</span></td><td>需审计与隔离 → <strong>企业内私有 Skill + RBAC</strong></td></tr>
+  <tr><td><span class="tag tag-red">主观审美（品牌设计）</span></td><td>AI 难判美感 → <strong>人 + Skill 协同</strong></td></tr>
+  <tr><td><span class="tag tag-red">需要真实世界操作</span></td><td>Skill 无物理执行能力 → <strong>RPA + Skill</strong></td></tr>
+</table>
+
+<h3 id="boundary-tool">Skill 与 Tool 的互补关系</h3>
+
+<p>很多新手会混淆 <strong>Skill</strong> 和 <strong>Tool</strong>，其实它们是 Agent 生态中不同层级的能力：</p>
+
+<table>
+  <tr><th style="width:120px;">维度</th><th>Skill（技能）</th><th>Tool（工具）</th></tr>
+  <tr><td>定位</td><td>领域专家「培训手册」</td><td>底层功能「接口」</td></tr>
+  <tr><td>粒度</td><td>粗 — 封装一整套流程</td><td>细 — 单一原子能力</td></tr>
+  <tr><td>例子</td><td><code>file-organizer</code></td><td><code>read_file</code> / <code>shell_executor</code></td></tr>
+  <tr><td>关系</td><td colspan="2" style="text-align:center;">Skill 内部<strong>编排调用</strong>多个 Tool，Tool 是 Skill 的执行手脚</td></tr>
+</table>
+
+<div class="callout">
+  <div class="callout-title">执行上下文与数据隔离</div>
+  每个 Skill 在加载时拥有独立的<strong>执行上下文</strong>，Skill 之间通过<strong>中间产物路径</strong>（如临时 JSON 文件）传递数据，而非共享内存。这保证了跨 Skill 协作时互不污染、可回退。
+</div>
+
+<hr>
+
+<!-- ===== 3. 优秀 Skill 的标准 ===== -->
+<h2 id="standard">优秀 Skill 的标准</h2>
+
+<p>什么样的 Skill 才算「优秀」？从设计原则、用户体验、执行效率三个维度，可以归纳出 <strong>五大评判标准</strong>：</p>
+
+<table>
+  <tr><th style="width:140px;">标准</th><th>说明</th></tr>
+  <tr><td><span class="tag tag-blue">指令清晰度</span></td><td>提示词必须明确、无歧义。AI 读不懂的模糊指令 = 不可控的行为</td></tr>
+  <tr><td><span class="tag tag-purple">容错能力</span></td><td>对异常情况和边界条件有优雅处理（「如果失败则…」「如果返回空则…」）</td></tr>
+  <tr><td><span class="tag tag-green">执行效率</span></td><td>最小化不必要的工具调用和交互轮次，把最重要的规则放在最前面</td></tr>
+  <tr><td><span class="tag tag-orange">用户体验</span></td><td>输出格式友好、进度可见、错误提示易懂</td></tr>
+  <tr><td><span class="tag tag-red">可维护性</span></td><td>结构化良好的 Skill 更易于迭代和调试（用 Markdown 标题分层）</td></tr>
+</table>
+
+<div class="callout tip">
+  <div class="callout-title">一句话</div>
+  <strong>好的 Skill = 清晰的触发条件 + 无歧义的指令正文 + 完善的兜底逻辑 + 友好的输出体验。</strong>
+</div>
+
+<hr>
+
+<!-- ===== 4. Skill 的核心组成 ===== -->
+<h2 id="components">Skill 的核心组成</h2>
+
+<p>回到本教程的核心模型，一个 Skill 由 <strong>三个核心字段</strong> 构成，缺一不可：</p>
+
+<table>
+  <tr><th>字段</th><th>含义</th><th>作用</th></tr>
+  <tr>
+    <td><code>name</code></td>
+    <td>Skill 的唯一标识符</td>
+    <td>系统内部路由的「代号」，AI 通过 <code>use_skill(skill_name="xxx")</code> 来加载</td>
+  </tr>
+  <tr>
+    <td><code>description</code></td>
+    <td>Skill 功能的简短说明</td>
+    <td>决定 <strong>何时激活</strong> 该 Skill — 系统根据用户意图匹配描述文本，命中则注入 prompt</td>
+  </tr>
+  <tr>
+    <td><code>prompt</code></td>
+    <td>Skill 的完整指令正文</td>
+    <td>注入 AI 上下文的「培训手册」，定义该领域下的工作流程、工具使用、安全规则等</td>
+  </tr>
+</table>
+
+<h3 id="name"><code>name</code> — 名称</h3>
+
+<p><strong>规则</strong>：使用小写字母 + 连字符，如 <code>invoice-retrieval</code>、<code>file-organizer</code>。全平台唯一，相当于身份证号。</p>
+
+<div class="callout warn">
+  <div class="callout-title">注意</div>
+  name 一旦注册后<strong>不建议随意更改</strong>，因为系统内部的路由、日志、调度都以 name 为索引。改名等于换个新 Skill。
+</div>
+
+<h3 id="description"><code>description</code> — 描述</h3>
+
+<p><strong>规则</strong>：用 1~2 句话清晰描述：<em>什么时候用这个 Skill、它能干什么</em>。系统会根据这段文字和用户输入做语义匹配。</p>
+
+<div class="callout tip">
+  <div class="callout-title">编写公式</div>
+  <strong>「当用户需要 [做什么] 时激活此技能 + 它能 [解决什么问题] + 不适用于 [排除场景]」</strong>
+</div>
+
+<div class="callout danger">
+  <div class="callout-title">description 是触发的唯一依据</div>
+  description 是 Agent 判断是否加载该 Skill 的<strong>唯一依据</strong>。写得不好，Skill 再好也不会被调用；写得好，即便功能简单也能精准触发。<br><br>
+  硬性约束：<strong>最长 1024 字符</strong>，且必须包含三要素 — <strong>触发词 + Use when + 第三人称</strong>。
+</div>
+
+<h3 id="prompt"><code>prompt</code> — 指令正文</h3>
+
+<p><strong>规则</strong>：这是 Skill 的灵魂。prompt 就是一段详细的自然语言指令，告诉 AI：</p>
+
+<ul>
+  <li><strong>你是谁</strong>（角色定位）— 你是发票专家 / 文件整理师 / 图片处理大师？</li>
+  <li><strong>你要遵守什么规则</strong> — 工具使用优先级、安全红线、禁止行为</li>
+  <li><strong>你的工作流程是什么</strong> — 第一步做什么、第二步做什么、遇到异常怎么办</li>
+  <li><strong>你有哪些可用工具</strong> — 哪些工具必须用、哪些工具禁止用</li>
+</ul>
+
+<hr>
+
+<!-- ===== 5. Skill 的注册方式 ===== -->
+<h2 id="registration">Skill 的注册方式</h2>
+
+<div class="callout danger">
+  <div class="callout-title">重要提示</div>
+  Skill <strong>不能</strong> 在对话中直接创建。它必须由 <strong>平台管理员</strong> 在后台管理系统中完成配置与注册。
+</div>
+
+<p>注册流程概述：</p>
+
+<ol class="step-list">
+  <li>
+    <strong>进入后台管理</strong><br>
+    管理员登录平台后台管理系统，进入「Skill 管理」模块。
+  </li>
+  <li>
+    <strong>填写基础信息</strong><br>
+    输入 Skill 的 <code>name</code>（唯一标识符）和 <code>description</code>（激活条件描述）。
+  </li>
+  <li>
+    <strong>编写 Prompt 正文</strong><br>
+    在 Prompt 编辑器中撰写完整的 Skill 指令。建议先在文本编辑器中打好草稿，反复推敲后粘贴提交。
+  </li>
+  <li>
+    <strong>配置触发规则（可选）</strong><br>
+    设置触发条件：是否需要用户显式调用（<code>use_skill</code>）、是否支持自动路由匹配等。
+  </li>
+  <li>
+    <strong>提交审核 & 发布</strong><br>
+    提交后由平台审核人员验证逻辑无误、安全合规，审核通过后全平台生效。
+  </li>
+</ol>
+
+<p>作为 Skill 开发者，你的核心工作就是<strong>设计并编写高质量的 prompt 文本</strong>，然后提交给管理员注册。</p>
+
+<hr>
+
+<!-- ===== 6. 完整示范 ===== -->
+<h2 id="demo">完整示范：一个 Hello World Skill</h2>
+
+<p>下面是一个最简单的 Skill 配置样例 — 当用户说「打个招呼」时，AI 会用多国语言问候：</p>
+
+<pre><code><span class="json-key">"name"</span>: <span class="json-string">"hello-world"</span>,
+<span class="json-key">"description"</span>: <span class="json-string">"当用户想要打招呼或问候时激活此技能。支持多国语言问候语生成。"</span>,
+<span class="json-key">"prompt"</span>: <span class="json-string">"你是一个友好的多语言问候助手。
+当用户与你打招呼时，请：
+1. 先用用户使用的语言热情回应
+2. 然后用 中文、英语、日语、法语、西班牙语 五种语言各说一句"你好"
+3. 最后询问用户今天需要什么帮助
+
+示例输出格式：
+---
+
+嘿，你好呀！ 👋
+
+让我用五种语言向你问好：
+- 中文：你好！
+- 英语：Hello!
+- 日语：こんにちは！
+- 法语：Bonjour！
+- 西班牙语：¡Hola！
+
+今天有什么我可以帮你的吗？ 😊
+
+---
+
+注意：始终保持友好、积极的语气。"</span></code></pre>
+
+<h3>逐行讲解</h3>
+
+<table>
+  <tr><th style="width:100px;">行 / 字段</th><th>讲解</th></tr>
+  <tr>
+    <td><code>name: "hello-world"</code></td>
+    <td>全小写 + 连字符，简洁明了。如果用 <code>"helloWorld"</code> 或 <code>"Hello_World"</code> 就不规范。</td>
+  </tr>
+  <tr>
+    <td><code>description</code></td>
+    <td>明确写了 <strong>触发条件</strong>（"当用户想要打招呼"）和 <strong>能力范围</strong>（"多国语言问候"）。系统路由就靠这段文字判断是否激活。</td>
+  </tr>
+  <tr>
+    <td><code>prompt 第 1 行</code></td>
+    <td><strong>角色定义</strong>："你是一个友好的多语言问候助手" — 让 AI 清楚当前身份。</td>
+  </tr>
+  <tr>
+    <td><code>prompt 步骤 1-3</code></td>
+    <td><strong>工作流定义</strong>：用数字序号列出步骤，清晰、可执行、不遗漏。</td>
+  </tr>
+  <tr>
+    <td><code>prompt 示例</code></td>
+    <td><strong>Few-shot 示例</strong>：直接给出期望的输出格式，AI 会严格模仿。</td>
+  </tr>
+  <tr>
+    <td><code>prompt 最后一行的「注意」</code></td>
+    <td><strong>约束条件</strong>：补充语气要求，防止 AI 跑偏。</td>
+  </tr>
+</table>
+
+<p>JSON 格式完整示例：</p>
+
+<pre><code>{
+  <span class="json-key">"name"</span>: <span class="json-string">"hello-world"</span>,
+  <span class="json-key">"description"</span>: <span class="json-string">"当用户想要打招呼或问候时激活此技能。支持多国语言问候语生成。"</span>,
+  <span class="json-key">"prompt"</span>: <span class="json-string">"你是一个友好的多语言问候助手。\n当用户与你打招呼时，请：\n1. 先用用户使用的语言热情回应\n2. 然后用中文、英语、日语、法语、西班牙语五种语言各说一句'你好'\n3. 最后询问用户今天需要什么帮助\n\n示例输出格式：\n---\n嘿，你好呀！\n\n让我用五种语言向你问好：\n- 中文：你好！\n- 英语：Hello!\n- 日语：こんにちは！\n- 法语：Bonjour！\n- 西班牙语：¡Hola！\n\n今天有什么我可以帮你的吗？\n---\n\n注意：始终保持友好、积极的语气。"</span>
+}</code></pre>
+
+<h3>进阶：来自实战训练营的 hello-skill 模板</h3>
+
+<p>下面是讯飞训练营给出的「复制即用」模板，它更贴近真实平台配置（含模型与触发词）：</p>
+
+<pre><code><span class="json-key">name:</span> <span class="json-string">hello-skill</span>
+<span class="json-key">description:</span> <span class="json-string">使用星火 Lite 模型生成一句 30 字以内的中文问候语。</span>
+
+<span class="json-key"># 步骤1: 接收触发</span>
+<span class="json-key"># 步骤2: 调用 LLM（星火 Lite）</span>
+<span class="json-key">model:</span> <span class="json-string">spark-lite</span>
+<span class="json-key">prompt:</span> <span class="json-string">生成一句 30 字以内的中文问候语，语气温馨自然</span>
+<span class="json-key"># 步骤3: 解析结果</span>
+<span class="json-key"># 步骤4: 输出问候语</span></code></pre>
+
+<div class="callout">
+  <div class="callout-title">触发词设计示例</div>
+  在 description / trigger 中明确列出中英文触发词，可大幅提升命中率：<br>
+  <table style="margin-top:8px;">
+    <tr><th style="width:120px;">中文</th><th>英文</th></tr>
+    <tr><td>你好</td><td>hello</td></tr>
+    <tr><td>嗨 / 嗨喽</td><td>hi</td></tr>
+    <tr><td>打个招呼</td><td>hey</td></tr>
+    <tr><td>你好呀 / 哈喽 / 大家好</td><td>其他问候变体</td></tr>
+  </table>
+</div>
+
+<h4>进阶挑战（扩展练习）</h4>
+<ul>
+  <li><strong>加随机 emoji</strong>：问候语后随机添加相关 emoji，增加趣味性</li>
+  <li><strong>时间段问候</strong>：根据上午 / 下午 / 晚上自动调整问候内容和语气</li>
+  <li><strong>可配置问候</strong>：允许用户自定义问候风格偏好（正式 / 轻松 / 温馨）</li>
+</ul>
+
+<hr>
+
+<!-- ===== 7. 最佳实践 ===== -->
+<h2 id="best-practice">最佳实践与常见错误</h2>
+
+<h3 id="naming">命名规范</h3>
+
+<table>
+  <tr><th style="width:100px;">维度</th><th>✅ 正确</th><th>❌ 错误</th></tr>
+  <tr><td>格式</td><td><code>file-organizer</code></td><td><code>FileOrganizer</code>、<code>file_organizer</code></td></tr>
+  <tr><td>长度</td><td>2~4 个单词</td><td><code>this-is-a-very-long-skill-name-that-no-one-will-remember</code></td></tr>
+  <tr><td>语义</td><td>描述功能，如 <code>image-search</code></td><td>无意义代号，如 <code>skill-001</code></td></tr>
+  <tr><td>唯一性</td><td>全平台唯一</td><td>与已有 Skill 重名</td></tr>
+</table>
+
+<h3 id="desc-tips">Description 编写技巧</h3>
+
+<div class="callout">
+  <div class="callout-title">Description 直接决定 Skill 能否被正确激活</div>
+  系统用 NLP 语义匹配来判断用户的意图是否命中某个 Skill 的 description。写不好 description，Skill 要么从不触发，要么在不该触发时乱触发。
+</div>
+
+<p><strong>编写公式（再强调）</strong>：</p>
+
+<pre><code>当用户需要 [具体操作/场景] 时激活此技能 + [核心能力一句话] + 不适用于 [排除场景]</code></pre>
+
+<p><strong>对比示例</strong>：</p>
+
+<table>
+  <tr><th>❌ 差</th><th>✅ 好</th></tr>
+  <tr>
+    <td style="font-size:13px;">「处理发票的」</td>
+    <td style="font-size:13px;">「当用户任务涉及发票的查找、识别、解析、信息提取时，必须激活本技能。适用场景包括：按时间段找出所有发票、批量提取发票信息、发票信息汇总成 Excel 表格等。」</td>
+  </tr>
+  <tr>
+    <td style="font-size:13px;color:var(--red);">太简短、太模糊，系统无法准确匹配</td>
+    <td style="font-size:13px;color:var(--green);">场景具体、触发词丰富、有明确的排除条件</td>
+  </tr>
+</table>
+
+<h4>description 三大常见反例</h4>
+<table>
+  <tr><th style="width:100px;">类型</th><th>问题</th><th>修改建议</th></tr>
+  <tr><td><strong>太宽</strong></td><td>范围过大，不相关场景也触发</td><td>精准限定使用场景，加「不适用于…」</td></tr>
+  <tr><td><strong>太窄</strong></td><td>覆盖面不足，该触发时没触发</td><td>合理扩展边界，补充同义触发词</td></tr>
+  <tr><td><strong>太抽象</strong></td><td>模糊不清，无法匹配</td><td>使用具体动词和场景，避免「处理」「管理」等泛词</td></tr>
+</table>
+
+<h3 id="prompt-tips">Prompt 编写技巧</h3>
+
+<h4>1. 结构化分层</h4>
+<p>用 Markdown 标题（#、##、###）将 prompt 分成清晰的层次：</p>
+<ul>
+  <li><code>## 角色定位</code> — 定义 AI 的身份</li>
+  <li><code>## 核心规则</code> — 写死必须遵守的铁律</li>
+  <li><code>## 工作流程</code> — 用步骤列表描述 SOP</li>
+  <li><code>## 禁止行为</code> — 用 ❌ 列出绝对不能做的事</li>
+  <li><code>## 输出格式</code> — 给出期望的输出模板</li>
+</ul>
+
+<h4>2. 工具路由表</h4>
+<p>如果 Skill 依赖特定工具，用表格明确路由规则：</p>
+
+<pre><code>| 场景 | 使用工具 | 备注 |
+|------|---------|------|
+| 读取 PDF | read_file | 不使用 read_text |
+| 编辑 Excel | excel-processing-and-analysis skill | 先 use_skill 加载 |
+| 文件搬运 | file-organizer skill | 严禁直接用 shell_executor |</code></pre>
+
+<h4>3. Few-shot 示例</h4>
+<p>在 prompt 中给出 1~2 个完整的「用户输入 → AI 应该如何响应」示例，AI 会以此为模板行动。</p>
+
+<h4>4. 安全红线</h4>
+<p>涉及文件删除、系统修改等敏感操作，必须在 prompt 中用醒目的 <code>🔴 高风险</code> 标记并写明确认流程。</p>
+
+<h3 id="pitfalls">常见踩坑点</h3>
+
+<table>
+  <tr><th>坑</th><th>现象</th><th>解决方案</th></tr>
+  <tr>
+    <td><strong>Description 过于宽泛</strong></td>
+    <td>Skill 在不相关场景也被激活，干扰正常对话</td>
+    <td>加「不适用于...」排除条件，缩小匹配范围</td>
+  </tr>
+  <tr>
+    <td><strong>Prompt 过于简略</strong></td>
+    <td>AI 行为不一致，同一种请求得到不同结果</td>
+    <td>细化每一步操作，给出具体示例，去掉模糊表述</td>
+  </tr>
+  <tr>
+    <td><strong>Prompt 过于冗长</strong></td>
+    <td>Token 消耗过大，AI 可能忽略靠后的指令</td>
+    <td>删除不必要的解释性文字，用表格代替大段描述，把最重要的规则放在最前面</td>
+  </tr>
+  <tr>
+    <td><strong>工具名写错</strong></td>
+    <td>AI 调用了不存在的工具，任务失败</td>
+    <td>严格对照工具列表，确保每个工具名拼写无误</td>
+  </tr>
+  <tr>
+    <td><strong>缺少兜底逻辑</strong></td>
+    <td>遇到异常情况 AI 不知所措</td>
+    <td>在 prompt 中加入「如果失败则...」「如果工具返回空则...」等兜底分支</td>
+  </tr>
+  <tr>
+    <td><strong>没有设置优先级</strong></td>
+    <td>多个 Skill 同时命中时行为混乱</td>
+    <td>在 prompt 中明确「本 Skill 覆盖以下场景，其他场景交由通用 AI 处理」</td>
+  </tr>
+</table>
+
+<hr>
+
+<!-- ===== 8. 实战案例拆解 ===== -->
+<h2 id="cases">实战案例拆解</h2>
+
+<p>下面拆解训练营中 4 个真实案例，分别对应前文「适合 Skill 的 5 类场景」中的不同类别，帮助你建立「需求 → Skill 设计」的直觉。</p>
+
+<h3 id="case-meeting">案例一：智能会议纪要生成器 <span class="tag tag-purple">信息抽取类</span></h3>
+
+<p><strong>需求</strong>：把一段冗长的会议录音转写文本，自动提炼成结构化纪要。</p>
+
+<h4>SKILL.md 结构拆解</h4>
+
+<p>这是一个经典的<strong>信息抽取 + 工具编排</strong>型 Skill，SKILL.md 分为六大模块：</p>
+
+<table>
+  <tr><th style="width:100px;">模块</th><th>内容</th><th>设计意图</th></tr>
+  <tr><td><strong>头部 meta</strong></td><td><code>name: meeting-minutes</code>；description 含触发词（会议录音、会议纪要、transcribe meeting）</td><td>确保 AI 能自动识别用户意图并路由到此 Skill</td></tr>
+  <tr><td><strong>输入声明</strong></td><td>明确文件类型（mp4/mkv/webm/m4a/mp3/wav/flac）、可选输出目录、可选日报生成</td><td>降低用户沟通成本，AI 一看就知道要什么参数</td></tr>
+  <tr><td><strong>执行步骤</strong></td><td>环境检查（ffmpeg + whisper）→ 提取音频（ffmpeg 转 WAV）→ 转录（whisper 模型）→ 修正幻觉 → 生成纪要 → 可选生成日报</td><td>六步流水线，每步有明确的 Shell 命令和参数。</td></tr>
+  <tr><td><strong>输出规范</strong></td><td>纪要 Markdown 文件（会议主题/参会人/讨论要点/决议/待办清单）；<br>日报仅保留工作视角（项目现状/需求/讨论结论/待跟进）</td><td>用表格约束输出字段，避免 AI 自由发挥导致字段缺失。</td></tr>
+  <tr><td><strong>异常处理</strong></td><td>同一目录多录音文件合并生成日报、文件名不用空格用下划线</td><td>规定细节边界的兜底逻辑。</td></tr>
+</table>
+
+<h4>设计亮点</h4>
+<ol>
+  <li><strong>六步流水线编排</strong>：环境检查 → 提取音频 → Whisper 转录 → 幻觉修正 → 生成纪要 → 日报，每步产出明确，步骤之间通过文件系统传递数据。</li>
+  <li><strong>Whisper 幻觉处理</strong>：Skill 明确标注了 Whisper 模型在静默段落会反复出现固定短语的已知问题，并规定修正策略，体现了对工具限制的深度理解。</li>
+  <li><strong>日报与纪要分离</strong>：纪要保持完整信息密度（含产品介绍），日报精简为工作视角（只保留决策路径、项目现状、待跟进），展示了"同一输入 → 两个输出"的实用模式。</li>
+</ol>
+
+<h4>实际文件结构</h4>
+<pre><code>meeting-minutes-generator/
+├── SKILL.md
+├── scripts/
+│   └── transcribe.py          # Whisper 转录脚本
+└── references/
+    └── output-format.md       # 纪要/日报 Markdown 模板</code></pre>
+
+<hr class="case-divider">
+
+<h3 id="case-novel">案例二：五阶段流水线写小说 <span class="tag tag-blue">内容生成类</span></h3>
+
+<p><strong>需求</strong>：用一条流水线完成从灵感到成稿的小说创作。</p>
+
+<h4>SKILL.md 结构拆解</h4>
+
+<p>这是四个案例中<strong>最复杂</strong>的一个，SKILL.md 长达 1110 行，内部实现了一个完整的<strong>长篇 / 网文创作操作系统</strong>。架构分为四层：</p>
+
+<table>
+  <tr><th style="width:100px;">层级</th><th>模块</th><th>核心设计</th></tr>
+  <tr><td><strong>入口路由</strong></td><td>首轮决策树（8 种入口）</td><td>新建小说 / 续写 / 快写 / 修改 / 自动写完整本 / 完稿导出 / 质量检查 / 短故事模式。通过触发词（"写一本""继续写""快写""导出 epub"）自动分流，首轮必须给出可用产物而非空泛追问。</td></tr>
+  <tr><td><strong>三阶段工作流</strong></td><td>策划期 → 连载期 → 收尾期</td><td>每个阶段有明确的出口条件。阶段切换需通过检查点确认（人工模式）或自动通过（自动驾驶模式）。</td></tr>
+  <tr><td><strong>写作循环</strong></td><td>10 步标准循环</td><td>读取上下文 → 检查悬念 → 角色沙盘 → 导演裁决 → 场景拆分 → 写正文 → 质量检查（红绿灯）→ 回写状态。每章都是一个可验证的事务。</td></tr>
+  <tr><td><strong>支撑系统</strong></td><td>角色沙盘 / 悬念管理 / 质量检查 / 角色模拟 / EPUB 导出 / 翻译</td><td>角色沙盘让关键角色以有限信息"自己思考行动倾向"，导演再按优先级裁决（人物一致性 > 主线 > 悬念 > 大纲 > 爽点）——把"角色驱动力"写进了 prompt 约束。</td></tr>
+</table>
+
+<h4>设计亮点</h4>
+<ol>
+  <li><strong>自动驾驶模式</strong>：支持"自动写完整本"的全自动流程，含红灯重试上限（最多 2 次）、连续失败熔断（3 章不通过强制暂停）、每 5 章进度简报。这是 Skill 复杂度的顶峰——把质量护栏写进了自主循环。</li>
+  <li><strong>角色沙盘模式</strong>：每个角色拥有独立运行时记忆文件（已知事实、误判、压力、关系判断）、角色可"反抗大纲"（自然倾向与原计划冲突时，导演必须裁决）、信息不对称（角色只知自己知道的，看不到未来剧情）。这是把「人物驱动」从口号变成了可执行协议。</li>
+  <li><strong>红绿灯质量体系</strong>：红灯 4 项（变化原则、字数、钩子、人物一致）必须通过；黄灯 2 项（AI 味、对白）建议优化；绿灯 3 项（伏笔、节奏、人物弧线）收尾期统一检查。分级检查避免在初稿阶段过度打磨。</li>
+  <li><strong>短故事旁路</strong>：长篇是默认入口，但"短故事模式"是完全独立的流程——6000 字最低标准、必须写入命名 Markdown 文件、对话只回报路径和字数。展示了"同一 Skill 内按模式分叉"的设计范式。</li>
+  <li><strong>中断恢复协议</strong>：长期中断后返回时自动生成续写简报（当前进度 + 各线状态 + 人物位置 + 下章任务），自动驾驶直接继续，人工模式先确认。这是"持续性长任务"产品化的关键一环。</li>
+</ol>
+
+<h4>实际文件结构</h4>
+<pre><code>chinese-novelist-skill/
+├── SKILL.md                  # 1110 行核心指令
+├── CHANGELOG.md
+├── scripts/                  # 7 个质量/导出/检查脚本
+│   ├── check_chapter_wordcount.py
+│   ├── check_ai_style.py
+│   ├── check_novel_health.py
+│   ├── check_short_story.py
+│   ├── check_timeline.py
+│   ├── character_tracker.py
+│   ├── generate_epub.py
+│   ├── split_chapter_workspace.py
+│   └── translate_to_english.py
+└── references/               # 20+ 个参考模板
+    ├── outline-template-v1-minimal.md
+    ├── character-template-v2.md
+    ├── chapter-guide.md
+    ├── 09-悬念生命周期管理.md
+    ├── 14-角色沙盘模式.md
+    └── ...</code></pre>
+
+<hr class="case-divider">
+
+<h3 id="case-image">案例三：文章智能配图 <span class="tag tag-blue">内容生成类</span></h3>
+
+<p><strong>需求</strong>：根据文章正文，自动匹配合适的配图（搜索或生成）。</p>
+
+<h4>SKILL.md 结构拆解</h4>
+
+<p>实际 Skill 名为 <code>baoyu-diagram</code>，功能远超"文章配图"——它是一个<strong>通用 SVG 图表生成器</strong>，支持 9 种图表类型：</p>
+
+<table>
+  <tr><th style="width:140px;">图表类型</th><th>适用场景</th><th>核心特征</th></tr>
+  <tr><td><strong>Architecture（架构图）</strong></td><td>系统组件与关系</td><td>分组框、连接线、区域边界</td></tr>
+  <tr><td><strong>Flowchart（流程图）</strong></td><td>决策逻辑、处理步骤</td><td>菱形决策节点、圆角步骤框、方向流</td></tr>
+  <tr><td><strong>Sequence（时序图）</strong></td><td>参与者间的时序交互</td><td>垂直生命线、水平消息、激活条</td></tr>
+  <tr><td><strong>Structural（结构图）</strong></td><td>类图、ER 图、组织架构图</td><td>分格框、类型化关系（继承/组合/依赖）</td></tr>
+  <tr><td><strong>Mind Map（思维导图）</strong></td><td>头脑风暴、主题探索</td><td>中心节点、辐射分支、有机布局</td></tr>
+  <tr><td><strong>Timeline（时间线）</strong></td><td>时间事件</td><td>横向/纵向轴线、事件标记、时期跨度</td></tr>
+  <tr><td><strong>Illustrative（概念图）</strong></td><td>概念解释、对比说明</td><td>自由布局、图标、标注、视觉隐喻</td></tr>
+  <tr><td><strong>State Machine（状态机）</strong></td><td>状态转换、生命周期</td><td>圆角状态节点、标签转换、起止标记</td></tr>
+  <tr><td><strong>Data Flow（数据流）</strong></td><td>数据变换管道</td><td>处理气泡、数据存储、外部实体</td></tr>
+</table>
+
+<h4>设计亮点</h4>
+<ol>
+  <li><strong>完整设计系统</strong>：SKILL.md 内置了一套完整的 SVG 设计语言——8 色语义调色板（Primary/Secondary/Tertiary/Accent/Alert/Connector/Neutral/Highlight）、JetBrains Mono 字体系统（5 级字号）、网格背景、箭头标记库。AI 生成图表时直接引用，保证视觉一致性。</li>
+  <li><strong>SVG 绘制层级规范</strong>：规定严格的 8 层绘制顺序（背景 → 区域边界 → 连接线 → 遮罩层 → 组件框 → 文本 → 图例 → 标题），每层有对应的 SVG 代码模板。特别是"遮罩层"技巧——在组件框下放一个 opaque 矩形，防止半透明组件透过连接线——这种工程细节极少出现在 Skill prompt 中。</li>
+  <li><strong>组件模式库</strong>：预定义了标准盒子、决策菱形、数据库柱体、区域边界、安全组等 5 种 SVG 组件模板，AI 直接套用而非每次重新设计。相当于 prompt 内置了 UI 组件库。</li>
+  <li><strong>间距规则强制</strong>：组件最小间距（40px 垂直/30px 水平）、箭头标签留白 10px、区域边界内边距 20px、图例距底部 20px——把布局约束写成了工程规范，避免 AI 产出重叠混乱的图表。</li>
+  <li><strong>输出管线</strong>：SVG 输出后自动调用 scripts/main.ts 生成 @2x PNG，一条命令完成矢量 + 位图双输出。</li>
+</ol>
+
+<h4>实际文件结构</h4>
+<pre><code>baoyu-diagram/
+├── SKILL.md
+├── scripts/
+│   └── main.ts               # SVG → @2x PNG 转换脚本
+└── references/
+    ├── architecture.md
+    ├── flowchart.md
+    ├── sequence.md
+    └── structural.md</code></pre>
+
+<hr class="case-divider">
+
+<h3 id="case-interview">案例四：前端笔面试通关神器 <span class="tag tag-orange">知识服务类</span></h3>
+
+<p><strong>需求</strong>：模拟前端面试官，陪用户刷题、打分、给改进建议。</p>
+
+<h4>SKILL.md 结构拆解</h4>
+
+<p>这是一个<strong>"实用工具 + 娱乐游戏"双模式</strong> Skill，从官方 SkillHub 发布的标准面试工具，被作者扩展了一个"修仙"扩展层：</p>
+
+<table>
+  <tr><th style="width:120px;">模块</th><th>内容</th><th>设计意图</th></tr>
+  <tr><td><strong>面试模式</strong></td><td>支持 4 种子命令：random（随机出题）、topic（按考点）、company（按公司模拟面试）、stats（题库统计）</td><td>覆盖真实面试场景的核心需求。</td></tr>
+  <tr><td><strong>修仙模式</strong></td><td>角色系统（4 门派，各含经验加成）→ 境界体系（凡人→飞升共 9 级，100 万经验满级）→ 功法系统（22 条考点-功法-心魔三列映射）→ 4 种世界观切换（凡人修仙传/完美世界/斗破苍穹/遮天）</td><td>把枯燥的刷题包装成沉浸式文字修仙 RPG，大幅提升用户粘性。</td></tr>
+  <tr><td><strong>题库系统</strong></td><td>8 大分类（JS 核心/CSS/Vue/React/浏览器/性能优化/工程化/AI 新兴技术），50+ 道 2026 大厂真题，结构化 JSON</td><td>每道题含 id/topic/difficulty/source/type/content/answer/keywords 8 个字段。</td></tr>
+  <tr><td><strong>扩展目录</strong></td><td>extensions/xiuxian（修仙引擎）+ extensions/novel-world（世界观引擎）</td><td>把游戏逻辑从核心 Skill 中解耦，展示了"核心功能 + 扩展层"的 Skill 架构范式。</td></tr>
+</table>
+
+<h4>设计亮点</h4>
+<ol>
+  <li><strong>双模式无缝切换</strong>：用户说"出题"进入面试模式，说"开始修仙"进入游戏模式——同一个 Skill 根据触发词路由到完全不同的行为。SKILL.md 的 description 同时包含两套触发词（前端面试/修仙/修炼/境界/渡劫），让 AI 能正确识别。</li>
+  <li><strong>概念映射深度设计</strong>：门派 = 技术栈方向（Vue派 React宗 原生门 全真教）、功法 = 知识点（事件循环→天机循环诀）、心魔 = 易错点（事件循环→时序心魔）、境界 = 能力等级（100 万经验满级）。不是表面套壳，而是把修仙成长体系与前端学习路径做了系统性映射。</li>
+  <li><strong>命令行走工具</strong>：interview.js 和 xiuxian.js 都可以在终端直接运行（如 <code>node scripts/interview.js topic 闭包</code>、<code>node extensions/xiuxian/scripts/xiuxian.js create 张三 Vue派</code>），不依赖 AI 对话界面，是独立可用的 Node.js 工具。</li>
+  <li><strong>扩展层解耦</strong>：修仙引擎和世界观引擎放在 extensions/ 目录下，与核心 Skill 的面试功能隔离。这意味着可以独立迭代游戏系统，不影响核心题库和出题逻辑。</li>
+</ol>
+
+<h4>实际文件结构</h4>
+<pre><code>frontend-interview-master/
+├── SKILL.md                        # 284 行，含面试+修仙双模式
+├── data/
+│   └── questions-bank.json         # 50+ 道大厂真题 JSON
+├── scripts/
+│   └── interview.js                # CLI：random/topic/company/stats
+└── extensions/
+    ├── xiuxian/                    # 修仙引擎
+    │   ├── scripts/xiuxian.js      # CLI：create/practice/status/breakthrough/trial
+    │   ├── data/
+    │   │   ├── game-config.json    # 门派/境界/规则配置
+    │   │   └── technique-mapping.json  # 22 条考点-功法-心魔映射
+    │   └── memory/                 # 游戏存档
+    └── novel-world/                # 世界观引擎
+        ├── scripts/novel-parser.js # 4 种小说世界观切换
+        └── memory/worlds/</code></pre>
+
+<div class="callout tip">
+  <div class="callout-title">四个案例的设计共性</div>
+  <ol>
+    <li><strong>结构化 prompt</strong>：四个 SKILL.md 都遵循"meta 声明 → 输入约束 → 分步流程 → 输出格式 → 异常兜底"的骨架，只是复杂度递增。</li>
+    <li><strong>文件沉淀</strong>：产出物都落盘为独立文件（会议纪要.md、manuscript/zh、.svg、questions-bank.json），不依赖对话上下文——这是"可交付 Skill"与"对话 prompt"的核心区别。</li>
+    <li><strong>工具编排</strong>：案例一编排 ffmpeg + whisper、案例二编排 9 个 Python/Node 脚本、案例三编排 Bun + TypeScript、案例四编排 Node CLI——Skill 不只是 LLM 指令，更是"提示词 + 脚本 + 数据文件"的完整软件包。</li>
+    <li><strong>触发词设计</strong>：description 字段既是 AI 路由的识别信号，也是用户的"功能说明书"——写得好坏直接决定 Skill 能不能被正确激活。</li>
+  </ol>
+</div>
+
+<hr>
+
+<!-- ===== 9. 开发环境与工具链 ===== -->
+<h2 id="env">开发环境与工具链</h2>
+
+<p>以讯飞 Skill 平台为例，完整的开发工具链包含四个环节，<strong>新手建议优先使用 AstronClaw 云端环境</strong>，无需本地配置即可完整体验「创建 → 测试 → 发布」。</p>
+
+<table>
+  <tr><th style="width:160px;">平台 / 工具</th><th>用途</th><th>关键操作</th></tr>
+  <tr>
+    <td><strong>讯飞开放平台</strong></td>
+    <td>账号注册、应用管理</td>
+    <td>"我的应用" → "创建应用" 获取 <code>APP ID</code> / <code>APIKey</code> / <code>APISecret</code> 凭证</td>
+  </tr>
+  <tr>
+    <td><strong>Astron SkillHub</strong></td>
+    <td>技能市场</td>
+    <td>搜索、创建、导入 Skill（5 大功能区：登录 / 创建 / 导入 / 搜索 / 管理）</td>
+  </tr>
+  <tr>
+    <td><strong>Loomy 桌面</strong></td>
+    <td>本地开发助手</td>
+    <td>下载安装、获取积分、桌面宠物、技能广场 · 连接器</td>
+  </tr>
+  <tr>
+    <td><strong>AstronClaw 云端</strong></td>
+    <td>云端开发测试</td>
+    <td>在线创建 Skill、调用模型，预置环境与工具，新用户友好</td>
+  </tr>
+</table>
+
+<h4>10 分钟跑通的 4 步流程</h4>
+<ol class="step-list">
+  <li><strong>注册 / 登录</strong><br>在讯飞开放平台注册登录，获取 <code>APP ID</code>、<code>APIKey</code>、<code>APISecret</code> 三件套凭证。</li>
+  <li><strong>登录 SkillHub</strong><br>进入 Astron SkillHub，熟悉创建、导入、搜索、管理四大功能。</li>
+  <li><strong>下载 Loomy 桌面</strong><br>安装客户端，获取积分，体验技能广场与连接器。</li>
+  <li><strong>使用 AstronClaw 云端</strong><br>在云端开发环境中在线创建并测试你的第一个 Skill。</li>
+</ol>
+
+<div class="callout warn">
+  <div class="callout-title">凭证安全</div>
+  <code>APP ID</code> / <code>APIKey</code> / <code>APISecret</code> 是调用星火 API 的必备凭证，<strong>严禁硬编码进公开仓库</strong>，应通过环境变量（如 <code>SPARK_APP_ID</code>）注入。
+</div>
+
+<hr>
+
+<!-- ===== 10. 调试与发布上线 ===== -->
+<h2 id="publish">Skill 调试与发布上线</h2>
+
+<p>Skill 写完后不能直接上线，必须经过「测试 → 审核 → 发布」三道关卡，确保逻辑无误、安全合规。</p>
+
+<h4>1. 本地 / 云端测试</h4>
+<ul>
+  <li>在对话框输入<strong>典型触发语句</strong>，验证 Skill 是否正确激活并返回预期结果</li>
+  <li>用<strong>边界输入</strong>（空输入、超长输入、无关输入）测试兜底逻辑是否生效</li>
+  <li>检查 <strong>Token 消耗</strong>与<strong>响应延迟</strong>，确认在合理范围</li>
+</ul>
+
+<h4>2. 提交审核</h4>
+<ul>
+  <li>管理员 / 平台审核人员验证逻辑正确性、安全合规性</li>
+  <li>重点检查：description 是否过宽导致误触发、prompt 是否含越权操作、输出是否含敏感信息</li>
+</ul>
+
+<h4>3. 发布与迭代</h4>
+<ul>
+  <li>审核通过后全平台生效，用户对话即可自动匹配</li>
+  <li>上线后持续收集反馈，按「单一职责 + 结构化」原则迭代优化</li>
+</ul>
+
+<div class="callout tip">
+  <div class="callout-title">训练营通关任务</div>
+  官方训练营要求学员「创建一个你自己的 Skill」并提交至 <strong>Skill 开发者大赛</strong>，优秀作品可获现金奖励与官方结营证书。提交前务必完成全部课程学习与任务审核。
+</div>
+
+<hr>
+
+<!-- ===== 11. 主流平台 Skill 格式速查 ===== -->
+<h2 id="platform-compat">主流平台 Skill 格式速查</h2>
+
+<p>Skill 的概念已从 Anthropic 的开源标准扩散到国内外主流 AI 平台。了解各平台的格式兼容性，有助于你选择学习路线和跨平台迁移。</p>
+
+<h3>平台对比一览</h3>
+
+<table>
+  <tr><th style="width:160px;">平台</th><th style="width:140px;">格式</th><th style="width:110px;">兼容 Anthropic SKILL.md</th><th>核心特点</th></tr>
+  <tr>
+    <td><strong>Anthropic Claude</strong></td>
+    <td><code>SKILL.md</code>（开源标准）</td>
+    <td><span class="tag tag-green">✅ 源头</span></td>
+    <td>文件夹 = Skill，YAML frontmatter + Markdown，<strong>渐进式披露</strong>机制。2025 年 12 月开源为跨平台标准，是行业事实标准</td>
+  </tr>
+  <tr>
+    <td><strong>CodeBuddy（腾讯）</strong></td>
+    <td><code>SKILL.md</code></td>
+    <td><span class="tag tag-green">✅ 完全兼容</span></td>
+    <td>与 Anthropic 规范一致，额外支持 <code>allowed-tools</code> / <code>context: fork</code> / <code>model</code> 等扩展字段</td>
+  </tr>
+  <tr>
+    <td><strong>扣子 Coze（字节）</strong></td>
+    <td><code>SKILL.md</code></td>
+    <td><span class="tag tag-green">✅ 兼容</span></td>
+    <td>国内首家上线技能商店（2026 年 1 月）；支持 <code>scripts/</code> / <code>references/</code> / <code>assets/</code> 子目录，渐进式披露</td>
+  </tr>
+  <tr>
+    <td><strong>Dify</strong></td>
+    <td>YAML 内联 / <code>SKILL.md</code> 双模式</td>
+    <td><span class="tag tag-green">✅ 兼容 SKILL.md</span></td>
+    <td>轻量场景用 YAML 内联直接写在策略配置里，复杂场景用 <code>SKILL.md</code> 文件</td>
+  </tr>
+  <tr>
+    <td><strong>火山引擎 / 豆包</strong></td>
+    <td><code>SKILL.md</code></td>
+    <td><span class="tag tag-green">✅ 兼容</span></td>
+    <td>与 Anthropic 规范对齐，支持 <code>skill-creator</code> 工具自动生成，内置成本管理与重试机制</td>
+  </tr>
+  <tr>
+    <td><strong>百度千帆 AppBuilder</strong></td>
+    <td><code>ai-plugin.json</code>（OpenAI Plugin 格式）</td>
+    <td><span class="tag tag-red">❌ 不兼容</span></td>
+    <td>独立体系，用 <code>ai-plugin.json</code> + <code>openapi.yaml</code> 定义，走 API 插件路线</td>
+  </tr>
+  <tr>
+    <td><strong>OpenAI GPTs</strong></td>
+    <td>GUI 表单配置</td>
+    <td><span class="tag tag-red">❌ 不兼容</span></td>
+    <td>纯界面配置，无文件格式，适合非开发者</td>
+  </tr>
+  <tr>
+    <td><strong>讯飞开放平台 / SkillHub</strong></td>
+    <td>自定义 JSON 配置</td>
+    <td><span class="tag tag-green">✅ 兼容（通过适配层）</span></td>
+    <td>五元素结构（NAME / DESCRIPTION / TRIGGER / ABILITIES / OUTPUT），独立体系</td>
+  </tr>
+</table>
+
+<h3>总结与建议</h3>
+
+<div class="callout tip">
+  <div class="callout-title">SKILL.md 已成为行业主流</div>
+  Anthropic 于 <strong>2025 年 12 月</strong>将 Agent Skills 开源为跨平台标准。目前腾讯 CodeBuddy、字节扣子、火山引擎豆包、Dify 等均已跟进支持，SKILL.md 格式正在成为 AI Agent 技能的事实标准。
+</div>
+
+<p>几条核心结论：</p>
+
+<ul>
+  <li><strong>SKILL.md 生态最广</strong>：Anthropic / CodeBuddy / Coze / 豆包 / Dify 均兼容，一次编写、多平台迁移的成本最低。建议新手优先学习 Anthropic SKILL.md 规范。</li>
+  <li><strong>独立路线</strong>：百度千帆（ai-plugin.json + OpenAPI）和 OpenAI GPTs（GUI 配置）走的是各自独立的技术栈，与 SKILL.md 生态不互通。</li>
+  <li><strong>讯飞独立体系</strong>：本教程前文介绍的讯飞五元素结构（NAME / DESCRIPTION / TRIGGER / ABILITIES / OUTPUT）属于独立格式，仅在讯飞 SkillHub 生态中使用。好消息是核心设计思路（元数据 + 触发词 + 能力描述 + 输出模板）与 SKILL.md 高度一致，概念迁移成本低。</li>
+  <li><strong>五元素与 SKILL.md 并不冲突</strong>：讯飞训练营的五元素框架本质上是对 SKILL.md prompt 正文的写作方法论，NAME / DESCRIPTION 对应 YAML 字段，TRIGGER / ABILITIES / OUTPUT 对应正文章节，因此与 SKILL.md 生态并不冲突。</li>
+</ul>
+
+<div class="callout">
+  <div class="callout-title">Marvis 对 SKILL.md 的支持</div>
+  Marvis 内部也支持导入 <code>SKILL.md</code> 格式的 Skill，规范与 Anthropic 兼容。但需注意：<strong>不是所有 Skill 都可以导入</strong>——只有通过平台审核的 Skill 才能使用，用户无法在对话中自行导入外部 Skill 文件。
+</div>
+
+<hr>
+
+<!-- ===== 11.5 WorkBuddy vs Loomy ===== -->
+<h2 id="wb-vs-loomy">WorkBuddy vs Loomy：Skill 创建实战对比</h2>
+
+<p>腾讯的 <strong>WorkBuddy</strong> 和讯飞的 <strong>Loomy</strong> 是 2026 年 3 月几乎同时上线的两款 AI 桌面助手，底层均兼容 OpenClaw 框架、均遵循 Anthropic SKILL.md 标准，但定位和 Skill 创建方式各有侧重。本章将两者的 Skill 创建流程做逐项对比，帮助你根据自身需求选择最合适的平台。</p>
+
+<h3>产品背景</h3>
+
+<table>
+  <tr><th style="width:100px;">维度</th><th style="width:220px;">WorkBuddy</th><th style="width:220px;">Loomy</th></tr>
+  <tr>
+    <td><strong>开发商</strong></td>
+    <td>腾讯 CodeBuddy 团队</td>
+    <td>科大讯飞</td>
+  </tr>
+  <tr>
+    <td><strong>底层框架</strong></td>
+    <td>OpenClaw（兼容）</td>
+    <td>AstronClaw（讯飞自研，兼容 OpenClaw）</td>
+  </tr>
+  <tr>
+    <td><strong>定位</strong></td>
+    <td>零门槛、开箱即用的 AI 桌面助手</td>
+    <td>安全优先的企业级 AI 桌面助手</td>
+  </tr>
+  <tr>
+    <td><strong>上线时间</strong></td>
+    <td>2026 年 3 月</td>
+    <td>2026 年 3 月</td>
+  </tr>
+</table>
+
+<h3>Skill 创建方式对比</h3>
+
+<table>
+  <tr><th style="width:140px;">创建方式</th><th style="width:260px;">WorkBuddy</th><th style="width:260px;">Loomy</th></tr>
+  <tr>
+    <td><strong>GUI 表单创建</strong></td>
+    <td><span class="tag tag-green">✅</span> 填表单自动生成 SKILL.md</td>
+    <td><span class="tag tag-green">✅</span> AI 对话式四问向导</td>
+  </tr>
+  <tr>
+    <td><strong>指令反向生成</strong></td>
+    <td><span class="tag tag-green">✅ 独有</span>：检测到 3 次相似操作后自动提示生成 Skill</td>
+    <td><span class="tag tag-red">❌</span> 无</td>
+  </tr>
+  <tr>
+    <td><strong>AI 对话生成</strong></td>
+    <td><span class="tag tag-green">✅</span> 自然语言描述需求，AI 代写 Skill</td>
+    <td><span class="tag tag-green">✅</span> 四问结构化引导，AI 协作生成</td>
+  </tr>
+  <tr>
+    <td><strong>元技能教学</strong></td>
+    <td><span class="tag tag-red">❌</span> 无</td>
+    <td><span class="tag tag-green">✅</span> 官方技能「技能创建」，用于创建新技能、修改并优化现有技能</td>
+  </tr>
+  <tr>
+    <td><strong>文件导入</strong></td>
+    <td><span class="tag tag-green">✅</span> 导入 YAML / zip</td>
+    <td><span class="tag tag-green">✅</span> 上传技能文件</td>
+  </tr>
+  <tr>
+    <td><strong>CLI 工具链</strong></td>
+    <td><span class="tag tag-red">❌</span> 无独立 CLI</td>
+    <td><span class="tag tag-green">✅</span> SkillHub CLI（<code>init</code> / <code>push</code> / <code>publish</code>）</td>
+  </tr>
+</table>
+
+<h3>Loomy 四问向导详解</h3>
+
+<p>Loomy 的「使用 Loomy 创建技能」是一个 AI 引导的结构化四问流程，每一项都有实例提示，极大降低非开发者的参与门槛：</p>
+
+<table>
+  <tr><th style="width:80px;">步骤</th><th style="width:280px;">引导问题</th><th>实例提示</th></tr>
+  <tr>
+    <td><strong>问题 1</strong></td>
+    <td>这个技能应该让 Loomy 能够做什么？</td>
+    <td>自动生成周报、处理特定格式文件</td>
+  </tr>
+  <tr>
+    <td><strong>问题 2</strong></td>
+    <td>什么时候应该触发这个技能？</td>
+    <td>用户提到"帮我写周报"、上传 .csv 文件时</td>
+  </tr>
+  <tr>
+    <td><strong>问题 3</strong></td>
+    <td>预期的输出格式是什么？</td>
+    <td>生成 Word 文档、输出代码、发送邮件</td>
+  </tr>
+  <tr>
+    <td><strong>问题 4</strong></td>
+    <td>是否需要设置测试用例来验证技能效果？</td>
+    <td>可选，适合有明确可验证输出的场景</td>
+  </tr>
+</table>
+
+<p>四问向导的设计巧妙之处在于：它恰好覆盖了本教程五元素框架中的 <code>ABILITIES</code>（问题 1）、<code>TRIGGER</code>（问题 2）、<code>OUTPUT</code>（问题 3），以及额外的质量保证环节（问题 4），<code>NAME</code> 和 <code>DESCRIPTION</code> 则由 AI 自动生成。即使用户完全不懂 Skill 技术细节，也能在 30 秒内完成一套完整的 Skill 定义。</p>
+
+<div style="display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0;">
+  <div style="flex: 1; min-width: 280px; text-align: center;">
+    <img src="images/workbuddy-skill-creation.png" alt="WorkBuddy 创建技能的三问引导流程" style="width: 100%; border-radius: 8px; border: 1px solid var(--border); cursor: pointer;" onclick="openLightbox('images/workbuddy-skill-creation.png')">
+    <p style="margin-top: 8px; color: var(--text-muted); font-size: 13px;">WorkBuddy 创建技能的三问引导流程</p>
+  </div>
+  <div style="flex: 1; min-width: 280px; text-align: center;">
+    <img src="images/loomy-skill-creation.png" alt="Loomy 创建技能的四问引导流程" style="width: 100%; border-radius: 8px; border: 1px solid var(--border); cursor: pointer;" onclick="openLightbox('images/loomy-skill-creation.png')">
+    <p style="margin-top: 8px; color: var(--text-muted); font-size: 13px;">Loomy 创建技能的四问引导流程</p>
+  </div>
+</div>
+
+<h3>引导流程对比分析</h3>
+
+<table>
+  <tr><th style="width:120px;">维度</th><th style="width:260px;">WorkBuddy</th><th style="width:260px;">Loomy</th></tr>
+  <tr>
+    <td><strong>问题数量</strong></td>
+    <td>3 问</td>
+    <td>4 问</td>
+  </tr>
+  <tr>
+    <td><strong>独特关注点</strong></td>
+    <td>提前规划技术资源（scripts / references / assets）</td>
+    <td>提前规划质量验证（测试用例）</td>
+  </tr>
+  <tr>
+    <td><strong>设计风格</strong></td>
+    <td>实用主义，上来就问"要什么资源"</td>
+    <td>工程思维，先确保"怎么验证效果"</td>
+  </tr>
+  <tr>
+    <td><strong>共同点</strong></td>
+    <td colspan="2">都从"功能 + 场景"起步，都用举例降低门槛</td>
+  </tr>
+</table>
+
+<p>两个平台都采用了对话式结构化引导来降低 Skill 创建门槛，但侧重点不同。WorkBuddy 更偏「工程师视角」——它在创建阶段就引导你规划脚本、参考文档、模板资源等目录结构，让你从一开始就把 Skill 想象成一个完整的工程项目。Loomy 则更偏「产品经理视角」——它关注的是功能定义、触发条件、输出格式和测试验证，把 Skill 当作一个需要明确输入输出和验收标准的产品来设计。两种思路没有优劣之分，选择取决于你的工作习惯。</p>
+
+<h3>优缺点对比</h3>
+
+<table>
+  <tr><th style="width:120px;"></th><th style="width:260px;">WorkBuddy</th><th style="width:260px;">Loomy</th></tr>
+  <tr>
+    <td><strong>上手难度</strong></td>
+    <td>⭐ 极低</td>
+    <td>⭐ 低（四问向导降低门槛）</td>
+  </tr>
+  <tr>
+    <td><strong>创建灵活性</strong></td>
+    <td>三种方式覆盖新手到进阶</td>
+    <td>两种方式，但向导更结构化不易跑偏</td>
+  </tr>
+  <tr>
+    <td><strong>独特优势</strong></td>
+    <td>指令反向生成，操作习惯自动沉淀</td>
+    <td>四问向导 + SkillHub CLI 全链路</td>
+  </tr>
+  <tr>
+    <td><strong>技能生态</strong></td>
+    <td>内置 20+ 技能包，兼容 OpenClaw 全生态</td>
+    <td>SkillHub 开放市场，全球开发者共享</td>
+  </tr>
+  <tr>
+    <td><strong>数据安全</strong></td>
+    <td>本地执行 + 高危指令拦截</td>
+    <td>目录级隔离 + 二次确认，企业级安全</td>
+  </tr>
+  <tr>
+    <td><strong>模型选择</strong></td>
+    <td>DeepSeek / Kimi / 混元 / GLM 等</td>
+    <td>DeepSeek / MiniMax / 讯飞星火等</td>
+  </tr>
+  <tr>
+    <td><strong>IM 集成</strong></td>
+    <td>企业微信 / 微信 / QQ / 钉钉</td>
+    <td>QQ / 飞书 / 钉钉</td>
+  </tr>
+  <tr>
+    <td><strong>定价</strong></td>
+    <td>新用户送 5000 Credits</td>
+    <td>新用户送 10000 积分（每日打卡送 5000 积分）</td>
+  </tr>
+</table>
+
+<h3>Skill 互通性说明</h3>
+
+<p>两者都遵循 Anthropic SKILL.md 标准，底层均兼容 OpenClaw 生态，互通路径清晰：</p>
+
+<ul>
+  <li><strong>SKILL.md 是通用语言</strong>：<code>name</code> + <code>description</code> YAML 字段两边都认，同一份 SKILL.md 可在两个平台间无缝迁移</li>
+  <li><strong>SkillHub 是共享桥梁</strong>：基于 ClawHub CLI 协议，一次发布到 SkillHub，OpenClaw / Loomy / WorkBuddy 都能拉取</li>
+  <li><strong>目录结构一致</strong>：<code>SKILL.md</code> + <code>scripts/</code> + <code>references/</code> + <code>assets/</code>，两边完全对齐</li>
+  <li><strong>唯一不互通</strong>：平台独有扩展字段（如 WorkBuddy 的 <code>allowed-tools</code>）在 Loomy 上会被忽略，但不影响基础功能</li>
+</ul>
+
+<h3>一句话建议</h3>
+
+<table>
+  <tr><th style="width:180px;">场景</th><th>推荐平台</th><th>理由</th></tr>
+  <tr>
+    <td>个人快速上手、最低成本</td>
+    <td><strong>WorkBuddy</strong></td>
+    <td>指令反向生成是独门绝技，操作习惯自动沉淀为 Skill</td>
+  </tr>
+  <tr>
+    <td>企业安全、开放生态、结构化引导</td>
+    <td><strong>Loomy</strong></td>
+    <td>四问向导 + SkillHub CLI 全链路，企业级安全隔离</td>
+  </tr>
+  <tr>
+    <td>两边都用</td>
+    <td><strong>WorkBuddy + Loomy</strong></td>
+    <td>SkillHub 当中间桥梁，一份 SKILL.md 两边通用</td>
+  </tr>
+</table>
+
+<hr>
+
+<!-- ===== 12. 进阶技巧 ===== -->
+<h2 id="advanced">进阶技巧</h2>
+
+<h3 id="tools">如何在 Prompt 中引用工具</h3>
+
+<p>Prompt 中可以明确指定 <strong>必须使用</strong> 或 <strong>禁止使用</strong> 的工具：</p>
+
+<pre><code>## 工具约束
+
+### 必须使用的工具
+- 读取发票图片 → 必须使用 `invoice_parsing` 工具
+- 文件内容搜索 → 必须使用 `search_file`（query 模式）
+
+### 禁止使用的工具
+- ❌ 严禁使用 `shell_executor` 删除任何文件
+- ❌ 严禁使用 `python_executor` 直接读写发票文件</code></pre>
+
+<div class="callout warn">
+  <div class="callout-title">注意</div>
+  你引用的工具名<strong>必须与系统中实际注册的工具名完全一致</strong>。建议在编写 prompt 前先确认可用工具清单。
+</div>
+
+<h3 id="triggers">设置触发条件</h3>
+
+<p>Skill 的触发方式有两种：</p>
+
+<table>
+  <tr><th style="width:160px;">触发方式</th><th>说明</th><th>适用场景</th></tr>
+  <tr>
+    <td><strong>自动路由匹配</strong></td>
+    <td>系统根据 description 自动判断用户意图是否匹配</td>
+    <td>常见场景的 Skill，如发票处理、文件整理</td>
+  </tr>
+  <tr>
+    <td><strong>显式调用</strong></td>
+    <td>AI 判断需要加载时主动调用 <code>use_skill("skill-name")</code></td>
+    <td>需要精确控制的复杂流程 Skill</td>
+  </tr>
+</table>
+
+<p>可以在 prompt 中写清楚触发策略，例如：</p>
+
+<pre><code>## 激活策略
+本 Skill 支持自动路由匹配，当用户意图与以下场景匹配时自动激活：
+- 用户提到"发票"、"报销"、"票据"
+- 用户要求"找发票"、"整理发票"、"发票汇总"</code></pre>
+
+<h3 id="multi-skill">多 Skill 协作</h3>
+
+<p>复杂任务往往需要多个 Skill 配合完成。比如「找出所有发票并生成汇总报告」这个任务：</p>
+
+<ol>
+  <li><code>invoice-retrieval</code> Skill — 搜索、识别、解析发票</li>
+  <li><code>excel-processing-and-analysis</code> Skill — 将解析结果写入 Excel</li>
+  <li><code>document-writer</code> Skill — 生成格式化的汇总报告</li>
+</ol>
+
+<p><strong>协作要点</strong>：</p>
+<ul>
+  <li>每个 Skill 的 prompt 中写明 <strong>输出格式</strong>，方便下游 Skill 直接消费</li>
+  <li>使用 <strong>中间产物路径</strong>（如临时 JSON 文件）在 Skill 之间传递数据，利用独立的执行上下文实现数据隔离</li>
+  <li>在 prompt 的「禁止行为」中注明 <strong>本 Skill 不负责的部分</strong>，避免越界</li>
+  <li>理解 <strong>跨 Skill 协作的模式与限制</strong>：Skill 之间不共享内存，只能通过约定格式的文件 / 消息传递</li>
+</ul>
+
+<div class="callout tip">
+  <div class="callout-title">设计建议</div>
+  <strong>单一职责原则</strong>：一个 Skill 只做一件事，做精做透。不要把发票识别、表格生成、报告撰写塞进同一个 Skill — 拆分成多个独立 Skill 更灵活、更易维护。
+</div>
+
+<hr>
+
+<!-- ===== 12. 总结 ===== -->
+<h2 id="summary">总结</h2>
+
+<p>创建 Skill 的本质是：<strong>把领域知识固化为 AI 可执行的指令模板</strong>。</p>
+
+<p>记住这五步：</p>
+
+<ol class="step-list">
+  <li><strong>明确场景</strong> — 这个 Skill 要解决什么问题？谁会用？它适合用 Skill 做吗？（参考能力边界）</li>
+  <li><strong>设计名称</strong> — 起一个简洁、语义清晰的 <code>name</code></li>
+  <li><strong>写好描述</strong> — 用「触发条件 + 核心能力 + 排除场景」公式写 <code>description</code>（≤1024 字符，含触发词 + Use when + 第三人称）</li>
+  <li><strong>编写指令</strong> — 结构化撰写 <code>prompt</code>：角色→规则→流程→工具→示例→禁止项</li>
+  <li><strong>测试发布</strong> — 用真实场景验证触发与兜底，提交审核后发布上线</li>
+</ol>
+
+<div class="callout">
+  <div class="callout-title">一句话总结</div>
+  <strong>好的 Skill = 清晰的触发条件（description）+ 无歧义的指令正文（prompt）+ 完善的兜底逻辑 + 友好的输出体验。</strong>
+</div>
+
+<hr>
+
+<p style="text-align:center;color:var(--text-muted);font-size:13px;margin-top:48px;">
+  Skill 创建教程 · 面向新手小白 · 愿你也能打造出优秀的 AI 技能插件
+</p>
+
+</main>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+// Copy code
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const code = this.parentElement.querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      this.textContent = '已复制!';
+      setTimeout(() => this.textContent = '复制', 1500);
+    });
+  });
+});
+
+// Lightbox for screenshots (future use)
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+}
+
+// Scroll spy for nav
+const sections = document.querySelectorAll('h2[id], h3[id]');
+const navLinks = document.querySelectorAll('.nav-list a');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) {
+      current = s.getAttribute('id');
+    }
+  });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) {
+      a.classList.add('active');
+    }
+  });
+});
+
+// Smooth scroll
+navLinks.forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+</body>
+</html>
